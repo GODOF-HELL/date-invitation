@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fbeeee">
+<meta name="robots" content="noindex, nofollow">
+<title>A little question for you ðŸ’Œ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ Design tokens ============ */
+:root{
+  --blush:#fbe4e6; --blush-2:#f6cdd3; --cream:#fffaf5; --white:#fff;
+  --rose:#d9607a; --rose-deep:#b8415c; --gold:#c9956f; --gold-soft:#e8c7ab;
+  --ink:#4a2631; --ink-soft:#7d5560; --line:#f0d3d2;
+  --shadow:0 18px 50px -18px rgba(184,65,92,.35), 0 2px 8px rgba(184,65,92,.08);
+  --serif:'Cormorant Garamond', 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --sans:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --radius:22px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);color:var(--ink);line-height:1.55;min-height:100vh;min-height:100dvh;
+  background:linear-gradient(160deg,#fff4ef 0%,#fde8ea 45%,#f9d9e0 100%) fixed;
+  overflow-x:hidden;
+}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--rose);outline-offset:3px;border-radius:12px}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ============ Background ============ */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55}
+.orb.a{width:340px;height:340px;background:#ffc9d3;top:-90px;left:-80px;animation:drift 18s ease-in-out infinite alternate}
+.orb.b{width:380px;height:380px;background:#ffe2cf;bottom:-120px;right:-100px;animation:drift 22s ease-in-out infinite alternate-reverse}
+.orb.c{width:240px;height:240px;background:#f7c3e0;top:45%;left:55%;opacity:.35;animation:drift 26s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate3d(40px,30px,0) scale(1.08)}}
+.floater{position:absolute;bottom:-40px;color:var(--rose);opacity:0;animation:rise linear infinite;user-select:none}
+@keyframes rise{
+  0%{transform:translate3d(0,0,0) rotate(0);opacity:0}
+  10%{opacity:.5}
+  90%{opacity:.35}
+  100%{transform:translate3d(var(--sway,30px),-110vh,0) rotate(var(--rot,25deg));opacity:0}
+}
+.sparkle{position:absolute;width:6px;height:6px;background:var(--gold-soft);border-radius:50%;
+  box-shadow:0 0 10px 2px rgba(232,199,171,.9);animation:twinkle 3.4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.1;transform:scale(.6)}50%{opacity:1;transform:scale(1.2)}}
+#fx{position:fixed;inset:0;width:100%;height:100%;z-index:40;pointer-events:none}
+
+/* ============ Layout ============ */
+.shell{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 18px max(28px,env(safe-area-inset-bottom));min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+.progress{display:flex;gap:8px;align-items:center;transition:opacity .4s}
+.progress i{width:26px;height:4px;border-radius:4px;background:var(--blush-2);transition:background .4s,width .4s}
+.progress i.on{background:var(--rose)}
+.progress i.cur{width:40px}
+.icon-btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid var(--line);display:grid;place-items:center;font-size:18px;transition:transform .2s,background .2s;backdrop-filter:blur(6px)}
+.icon-btn:hover{transform:scale(1.07);background:#fff}
+.icon-btn[aria-pressed="true"]{background:var(--rose);color:#fff;border-color:var(--rose)}
+main{flex:1;display:flex;flex-direction:column;justify-content:center;padding:18px 0 10px}
+
+.screen{display:none}
+.screen.active{display:block;animation:enter .7s cubic-bezier(.2,.8,.2,1) both}
+.screen.leaving{display:block;animation:leave .35s ease both}
+@keyframes enter{from{opacity:0;transform:translateY(22px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes leave{to{opacity:0;transform:translateY(-14px)}}
+
+.card{background:rgba(255,255,255,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(240,211,210,.9);border-radius:var(--radius);padding:26px 20px;box-shadow:var(--shadow);position:relative}
+.card::before{content:"";position:absolute;inset:6px;border:1px solid rgba(201,149,111,.25);border-radius:calc(var(--radius) - 6px);pointer-events:none}
+.eyebrow{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin-bottom:10px}
+h1,h2{font-family:var(--serif);font-weight:600;line-height:1.12;text-align:center;color:var(--ink);outline:none}
+h1{font-size:clamp(2.2rem,9vw,3.3rem)}
+h2{font-size:clamp(1.8rem,7vw,2.4rem)}
+h1 em,h2 em{color:var(--rose);font-style:italic}
+.lead{text-align:center;color:var(--ink-soft);margin:10px auto 20px;max-width:34ch}
+.divider{display:flex;align-items:center;gap:10px;justify-content:center;color:var(--gold);margin:14px 0 6px;font-size:.8rem}
+.divider::before,.divider::after{content:"";height:1px;width:46px;background:linear-gradient(90deg,transparent,var(--gold-soft))}
+.divider::after{transform:scaleX(-1)}
+
+/* ============ Buttons ============ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:14px 26px;border-radius:999px;font-weight:600;font-size:1rem;
+  transition:transform .2s cubic-bezier(.3,1.6,.5,1),box-shadow .25s,background .25s,opacity .2s;position:relative;overflow:hidden;width:100%}
+.btn-primary{background:linear-gradient(135deg,#e5748c,#c94a68);color:#fff;box-shadow:0 10px 24px -8px rgba(201,74,104,.6)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 30px -10px rgba(201,74,104,.7)}
+.btn-primary:active{transform:translateY(1px) scale(.97)}
+.btn-primary::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);transform:translateX(-120%);transition:transform .7s}
+.btn-primary:hover::after{transform:translateX(120%)}
+.btn-ghost{background:rgba(255,255,255,.8);border:1.5px solid var(--gold-soft);color:var(--ink)}
+.btn-ghost:hover{transform:translateY(-2px);background:#fff}
+.btn-ghost:active{transform:scale(.97)}
+.btn-text{min-height:44px;padding:8px 14px;color:var(--ink-soft);font-weight:500;text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--gold-soft)}
+.btn[disabled]{opacity:.65;cursor:not-allowed;transform:none!important}
+.actions{display:grid;gap:12px;margin-top:22px}
+.actions.row{grid-template-columns:1fr 1.4fr}
+.spinner{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.45);border-top-color:#fff;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ============ Intro ============ */
+#intro{text-align:center}
+#intro .whisper{font-family:var(--serif);font-style:italic;font-size:clamp(1.4rem,5.5vw,1.8rem);color:var(--ink-soft);min-height:2.4em}
+.seq{opacity:0;transform:translateY(14px);transition:opacity 1s ease,transform 1s ease}
+.seq.show{opacity:1;transform:none}
+.big-heart{font-size:3.2rem;display:inline-block;animation:beat 1.8s ease-in-out infinite;filter:drop-shadow(0 8px 14px rgba(201,74,104,.35))}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.14)}30%{transform:scale(1)}45%{transform:scale(1.1)}}
+#intro .question{margin:14px 0 26px}
+.more{margin-top:18px;text-align:left;padding:18px;border-radius:18px;background:linear-gradient(135deg,#fff6f2,#fff0f2);border:1px dashed var(--gold-soft);animation:enter .6s both}
+.more p{font-family:var(--serif);font-size:1.25rem;line-height:1.4;color:var(--ink)}
+.more .actions{margin-top:16px}
+.note-soft{margin-top:12px;font-size:.92rem;color:var(--ink-soft);text-align:center;font-style:italic}
+
+/* ============ Calendar ============ */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin:6px 0 12px}
+.cal-head .month{font-family:var(--serif);font-size:1.5rem;font-weight:600}
+.cal-nav{width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid var(--line);font-size:1.1rem;transition:transform .2s,background .2s}
+.cal-nav:hover:not([disabled]){background:var(--blush);transform:scale(1.06)}
+.cal-nav[disabled]{opacity:.35;cursor:not-allowed}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-dow{font-size:.7rem;text-align:center;color:var(--gold);font-weight:600;letter-spacing:.08em;padding:4px 0;text-transform:uppercase}
+.day{aspect-ratio:1/1;min-height:40px;border-radius:50%;font-weight:500;font-size:.98rem;display:grid;place-items:center;transition:transform .18s,background .2s,color .2s,box-shadow .2s;position:relative}
+.day:hover:not([disabled]){background:var(--blush);transform:scale(1.08)}
+.day[disabled]{color:#cdb6b6;cursor:not-allowed;text-decoration:line-through;text-decoration-color:rgba(205,182,182,.6)}
+.day.today:not([disabled])::after{content:"";position:absolute;bottom:5px;width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.day[aria-pressed="true"]{background:linear-gradient(135deg,#e5748c,#c94a68);color:#fff;box-shadow:0 8px 18px -6px rgba(201,74,104,.65);transform:scale(1.06)}
+.empty{visibility:hidden}
+
+.pick{margin-top:16px;text-align:center;padding:14px;border-radius:16px;background:linear-gradient(135deg,#fff3ee,#ffeef1);border:1px solid var(--line);min-height:68px;display:grid;place-items:center}
+.pick small{display:block;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.pick strong{font-family:var(--serif);font-size:1.5rem;font-weight:600;line-height:1.2}
+.pick .placeholder{color:var(--ink-soft);font-style:italic;font-family:var(--serif);font-size:1.15rem}
+.error{color:#a3283f;background:#fff0f2;border:1px solid #f4b7c2;border-radius:12px;padding:10px 14px;margin-top:14px;font-size:.92rem;text-align:center}
+
+/* ============ Chips / fields ============ */
+.chips{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:6px}
+.chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:78px;padding:12px 8px;border-radius:18px;background:#fff;border:1.5px solid var(--line);transition:transform .2s,border-color .2s,background .2s,box-shadow .2s;text-align:center}
+.chip:hover{transform:translateY(-2px);border-color:var(--gold-soft)}
+.chip .em{font-size:1.5rem;line-height:1}
+.chip b{font-weight:600;font-size:.98rem}
+.chip span.sub{font-size:.78rem;color:var(--ink-soft)}
+.chip[aria-pressed="true"]{background:linear-gradient(135deg,#fff0f2,#ffe3e8);border-color:var(--rose);box-shadow:0 10px 22px -12px rgba(201,74,104,.7);transform:translateY(-2px)}
+.chips.three{grid-template-columns:repeat(3,1fr)}
+.chips.three .chip{min-height:92px}
+label.fl{display:block;font-weight:600;font-size:.9rem;margin:20px 0 6px}
+label.fl .opt{font-weight:400;color:var(--ink-soft)}
+.field{width:100%;padding:14px 16px;border-radius:16px;border:1.5px solid var(--line);background:#fff;transition:border-color .2s,box-shadow .2s;min-height:50px}
+.field:focus{outline:none;border-color:var(--rose);box-shadow:0 0 0 4px rgba(217,96,122,.15)}
+textarea.field{resize:vertical;min-height:110px}
+.counter{text-align:right;font-size:.78rem;color:var(--ink-soft);margin-top:4px}
+.hint{font-size:.85rem;color:var(--ink-soft);margin-top:6px}
+.or{display:flex;align-items:center;gap:12px;color:var(--gold);font-size:.8rem;margin:18px 0 0;letter-spacing:.1em;text-transform:uppercase}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.surprise{width:100%;margin-top:12px;display:flex;align-items:center;gap:12px;text-align:left;padding:14px 16px;border-radius:18px;background:#fff;border:1.5px dashed var(--gold-soft);transition:all .2s}
+.surprise:hover{border-color:var(--rose)}
+.surprise[aria-pressed="true"]{border-style:solid;border-color:var(--rose);background:linear-gradient(135deg,#fff0f2,#ffe9ee)}
+.surprise .em{font-size:1.6rem}
+.surprise b{display:block}
+.surprise small{color:var(--ink-soft)}
+
+/* ============ Review ============ */
+.summary{background:linear-gradient(160deg,#fffdfb,#fff3f0);border:1px solid var(--gold-soft);border-radius:20px;padding:6px 18px;margin-top:6px;position:relative}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:14px 0;border-bottom:1px dashed var(--line)}
+.row:last-child{border-bottom:0}
+.row .ico{font-size:1.4rem;width:34px;text-align:center}
+.row dt{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.row dd{font-family:var(--serif);font-size:1.3rem;font-weight:600;line-height:1.25;word-break:break-word}
+.row dd.small{font-family:var(--sans);font-size:.95rem;font-weight:400;color:var(--ink-soft);margin-top:4px}
+.row .edit{font-size:.82rem;color:var(--rose-deep);font-weight:600;padding:8px 6px;min-height:44px;text-decoration:underline;text-underline-offset:3px}
+.notice{margin-top:16px;padding:12px 14px;border-radius:14px;background:#fff8ec;border:1px solid #f0d9ae;font-size:.86rem;color:#7a5a1f}
+.notice.ok{background:#f0faf3;border-color:#b9e2c5;color:#285a38}
+.status{min-height:1.4em;margin-top:12px;text-align:center;font-size:.92rem}
+
+/* ============ Done ============ */
+#done{text-align:center}
+#done .copy-row{display:grid;gap:10px;margin-top:14px}
+.small-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+.small-actions .btn{width:auto;min-height:44px;padding:10px 18px;font-size:.92rem}
+.summary.done{text-align:left;margin-top:18px}
+
+.toast{position:fixed;left:50%;bottom:max(22px,env(safe-area-inset-bottom));transform:translate(-50%,30px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:999px;font-size:.9rem;opacity:0;transition:all .35s;z-index:60;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+footer{text-align:center;font-size:.78rem;color:var(--ink-soft);opacity:.8;padding-top:14px}
+
+@media (min-width:640px){
+  .card{padding:36px 34px}
+  .actions.row{grid-template-columns:1fr 1.6fr}
+  .btn{width:auto;min-width:200px}
+  .actions .btn{width:100%}
+  .chips{grid-template-columns:repeat(3,1fr)}
+  .chips.three{grid-template-columns:repeat(4,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .floater,.sparkle,.orb{display:none}
+  .seq{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <div class="orb a"></div><div class="orb b"></div><div class="orb c"></div>
+  <div id="floaters"></div>
+</div>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<div class="shell">
+  <div class="topbar">
+    <div class="progress" id="progress" aria-hidden="true"></div>
+    <button class="icon-btn" id="musicBtn" aria-pressed="false" aria-label="Play soft background music" title="Music (off)">â™ª</button>
+  </div>
+
+  <main id="app">
+
+    <!-- ============ 1. INVITATION ============ -->
+    <section class="screen active" id="intro" aria-labelledby="introTitle">
+      <div class="card">
+        <div class="seq" id="seqA">
+          <p class="eyebrow" id="toLine">A little note, just for you</p>
+          <p class="whisper">Hey, there's something I've been wanting to ask youâ€¦</p>
+        </div>
+        <div class="seq question" id="seqB">
+          <div class="big-heart" aria-hidden="true">ðŸ’—</div>
+          <h1 id="introTitle" tabindex="-1">Will you go on a <em>date</em> with me? â¤ï¸</h1>
+        </div>
+        <div class="seq" id="seqC">
+          <div class="actions">
+            <button class="btn btn-primary" id="yesBtn">Yes, I'd love to! ðŸ’—</button>
+            <button class="btn btn-ghost" id="moreBtn" aria-expanded="false" aria-controls="morePanel">Tell me more ðŸ‘€</button>
+          </div>
+          <div class="more" id="morePanel" hidden>
+            <p id="moreText">Here's the deal: no pressure, no plan to follow. You pick the day, the time, and the place, and I'll show up with my best smile and probably too much excitement. ðŸŒ·</p>
+            <div class="actions">
+              <button class="btn btn-primary" id="moreYes">Okay, I'm in ðŸ’—</button>
+              <button class="btn btn-text" id="thinkBtn">Let me think about it</button>
+            </div>
+            <p class="note-soft" id="thinkMsg" hidden>Take all the time you need. This page will be right here whenever you're ready. ðŸ¤</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 2. DATE ============ -->
+    <section class="screen" id="date" aria-labelledby="dateTitle">
+      <div class="card">
+        <p class="eyebrow">Step 1 of 4</p>
+        <h2 id="dateTitle" tabindex="-1">Pick a <em>day</em></h2>
+        <p class="lead">Whichever day feels right to you. I'll make it work.</p>
+        <div class="cal-head">
+          <button class="cal-nav" id="prevMonth" aria-label="Previous month">â€¹</button>
+          <div class="month" id="monthLabel" aria-live="polite"></div>
+          <button class="cal-nav" id="nextMonth" aria-label="Next month">â€º</button>
+        </div>
+        <div class="cal-grid" id="calGrid" role="group" aria-label="Choose a date"></div>
+        <div class="pick" id="datePick" aria-live="polite"></div>
+        <div class="error" id="dateErr" role="alert" hidden></div>
+        <div class="actions row">
+          <button class="btn btn-ghost" data-back="intro">Back</button>
+          <button class="btn btn-primary" id="dateNext">Continue ðŸ’•</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3. TIME ============ -->
+    <section class="screen" id="time" aria-labelledby="timeTitle">
+      <div class="card">
+        <p class="eyebrow">Step 2 of 4</p>
+        <h2 id="timeTitle" tabindex="-1">What <em>time</em> suits you?</h2>
+        <p class="lead">Choose a time of day, or set your own exact time.</p>
+        <div class="chips three" id="slots" role="group" aria-label="Time of day"></div>
+        <div class="or">or</div>
+        <label class="fl" for="customTime" style="margin-top:12px">Pick an exact time</label>
+        <input class="field" type="time" id="customTime">
+        <div class="pick" id="timePick" aria-live="polite"></div>
+        <div class="error" id="timeErr" role="alert" hidden></div>
+        <div class="actions row">
+          <button class="btn btn-ghost" data-back="date">Back</button>
+          <button class="btn btn-primary" id="timeNext">Continue ðŸ’•</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 4. PLACE ============ -->
+    <section class="screen" id="place" aria-labelledby="placeTitle">
+      <div class="card">
+        <p class="eyebrow">Step 3 of 4</p>
+        <h2 id="placeTitle" tabindex="-1">Where shall <em>we</em> go?</h2>
+        <p class="lead">Pick a vibe, name a spot, or let me be surprised.</p>
+        <div class="chips" id="cats" role="group" aria-label="Kinds of places"></div>
+        <label class="fl" for="placeInput">A specific place or address <span class="opt">(optional if you picked a vibe)</span></label>
+        <input class="field" id="placeInput" type="text" maxlength="160" autocomplete="off" placeholder="That cozy spot you love, or anywhere you like">
+        <button class="surprise" id="surpriseBtn" aria-pressed="false" aria-controls="surpriseWrap">
+          <span class="em" aria-hidden="true">ðŸŽ</span>
+          <span><b>Surprise me</b><small>Tell me the kind of outing and I'll plan the rest</small></span>
+        </button>
+        <div id="surpriseWrap" hidden>
+          <label class="fl" for="surpriseInput">What kind of outing? <span class="opt">(optional)</span></label>
+          <input class="field" id="surpriseInput" type="text" maxlength="160" placeholder="Something cozy, adventurous, sweetâ€¦">
+        </div>
+        <label class="fl" for="ideasInput">Other preferences or ideas <span class="opt">(optional)</span></label>
+        <textarea class="field" id="ideasInput" maxlength="300" rows="3" placeholder="Favourite food, allergies, things you'd love or want to skipâ€¦" style="min-height:90px"></textarea>
+        <div class="error" id="placeErr" role="alert" hidden></div>
+        <div class="actions row">
+          <button class="btn btn-ghost" data-back="time">Back</button>
+          <button class="btn btn-primary" id="placeNext">Continue ðŸ’•</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 5. NOTE ============ -->
+    <section class="screen" id="note" aria-labelledby="noteTitle">
+      <div class="card">
+        <p class="eyebrow">Step 4 of 4</p>
+        <h2 id="noteTitle" tabindex="-1">A little <em>note</em>?</h2>
+        <p class="lead">Totally optional, but I'd love to read it.</p>
+        <label class="sr-only" for="noteInput">Personal note</label>
+        <textarea class="field" id="noteInput" maxlength="500" rows="5" placeholder="Anything else I should know before our little date? ðŸ’Œ"></textarea>
+        <div class="counter"><span id="noteCount">0</span>/500</div>
+        <div class="actions row">
+          <button class="btn btn-ghost" data-back="place">Back</button>
+          <button class="btn btn-primary" id="noteNext">Review my date ðŸ’•</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6. REVIEW ============ -->
+    <section class="screen" id="review" aria-labelledby="reviewTitle">
+      <div class="card">
+        <p class="eyebrow">Almost there</p>
+        <h2 id="reviewTitle" tabindex="-1">Our <em>date</em>, as you planned it</h2>
+        <p class="lead">Take a last look. You can change anything.</p>
+        <dl class="summary" id="reviewList"></dl>
+        <div class="notice" id="demoNotice" hidden></div>
+        <div class="status" id="submitStatus" role="status" aria-live="polite"></div>
+        <div class="actions">
+          <button class="btn btn-primary" id="submitBtn">Let's make it a date! â¤ï¸</button>
+          <button class="btn btn-ghost" id="editBtn">Edit my choices</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 7. DONE ============ -->
+    <section class="screen" id="done" aria-labelledby="doneTitle">
+      <div class="card">
+        <div class="big-heart" aria-hidden="true">ðŸ’•</div>
+        <h2 id="doneTitle" tabindex="-1">It's a <em>date!</em> ðŸ’•</h2>
+        <p class="lead">You choose the when and where.<br>I'll take care of the rest.</p>
+        <dl class="summary done" id="doneList"></dl>
+        <div class="notice ok" id="doneNotice">Saved. Your answer has safely reached me. ðŸ’—</div>
+        <div class="small-actions">
+          <button class="btn btn-text" id="changeAnswer">Send a different answer</button>
+        </div>
+        <p class="note-soft">Sending a different answer adds a new one; the first stays on record too.</p>
+      </div>
+    </section>
+
+  </main>
+  <footer>Made with care, just for you â™¥</footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =====================================================================
+   CONFIGURATION: edit this block only.
+   ---------------------------------------------------------------------
+   endpoint : URL of your deployed Cloudflare Worker, no trailing slash,
+              e.g. "https://date-invitation-worker.yourname.workers.dev"
+   yourName : optional, used in the page title.
+   This file is public. Never put tokens or secrets here.
+   ===================================================================== */
+const CONFIG = {
+  endpoint: " https://date-invitation-worker.ritikshival.workers.dev/",
+  yourName: "",                 // optional, e.g. "Alex"
+  timeoutMs: 15000,             // per network request
+  pollEveryMs: 3000,            // how often to ask "is it saved yet?"
+  pollForMs: 90000              // how long to wait before showing "still pending"
+};
+
+/* ===================== Helpers ===================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isDemo = () => !CONFIG.endpoint;
+const pad = n => String(n).padStart(2, "0");
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const longDate = d => d.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+function fmt12(v) {
+  const [h, m] = v.split(":").map(Number);
+  return `${((h + 11) % 12) + 1}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`;
+}
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 2600);
+}
+function showErr(id, msg) { const e = $(id); e.textContent = msg; e.hidden = !msg; }
+
+/* ===================== State ===================== */
+const state = {
+  date: null,                 // Date object (local, midnight)
+  view: null,                 // {y, m} calendar month in view
+  time: null,                 // {value:"HH:MM", kind:"morning|afternoon|evening|night|custom"}
+  category: null,             // string
+  surprise: false,
+  submitting: false,
+  submitted: false
+};
+const today = new Date(); today.setHours(0, 0, 0, 0);
+const minDate = new Date(today); minDate.setDate(minDate.getDate() + 1);   // future dates only
+state.view = { y: minDate.getFullYear(), m: minDate.getMonth() };
+
+/* ===================== Personalisation ===================== */
+(function personalise() {
+  const to = new URLSearchParams(location.search).get("to");
+  if (to) $("#toLine").textContent = `A little note, just for ${to.slice(0, 30)}`;
+  if (CONFIG.yourName) document.title = `A question from ${CONFIG.yourName} ðŸ’Œ`;
+})();
+
+/* ===================== Screens ===================== */
+const ORDER = ["date", "time", "place", "note", "review"];
+let current = "intro";
+function go(name) {
+  const from = $("#" + current), to = $("#" + name);
+  if (from === to) return;
+  const show = () => {
+    from.classList.remove("active", "leaving");
+    to.classList.add("active");
+    current = name;
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    const h = $("h1,h2", to); if (h) h.focus({ preventScroll: true });
+  };
+  if (reduceMotion) show();
+  else { from.classList.add("leaving"); setTimeout(show, 330); }
+}
+function updateProgress() {
+  const p = $("#progress"), i = ORDER.indexOf(current);
+  p.style.opacity = i < 0 ? 0 : 1;
+  $$("i", p).forEach((el, k) => { el.classList.toggle("on", k <= i); el.classList.toggle("cur", k === i); });
+}
+(function buildProgress() {
+  $("#progress").innerHTML = ORDER.map(() => "<i></i>").join("");
+  updateProgress();
+})();
+$$("[data-back]").forEach(b => b.addEventListener("click", () => go(b.dataset.back)));
+
+/* ===================== Intro ===================== */
+(function introSequence() {
+  const steps = ["#seqA", "#seqB", "#seqC"], delays = [300, 1900, 3600];
+  steps.forEach((s, i) => setTimeout(() => $(s).classList.add("show"), reduceMotion ? 0 : delays[i]));
+})();
+const accept = () => { burst(window.innerWidth / 2, window.innerHeight * 0.45, 26); setTimeout(() => go("date"), reduceMotion ? 0 : 450); };
+$("#yesBtn").addEventListener("click", accept);
+$("#moreYes").addEventListener("click", accept);
+$("#moreBtn").addEventListener("click", () => {
+  const p = $("#morePanel"), open = p.hidden;
+  p.hidden = !open; $("#moreBtn").setAttribute("aria-expanded", String(open));
+  if (open) p.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
+});
+$("#thinkBtn").addEventListener("click", () => { $("#thinkMsg").hidden = false; });
+
+/* ===================== Calendar ===================== */
+const DOW = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+function renderCalendar() {
+  const { y, m } = state.view, grid = $("#calGrid");
+  $("#monthLabel").textContent = new Date(y, m, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
+  let html = DOW.map(d => `<div class="cal-dow" aria-hidden="true">${d}</div>`).join("");
+  for (let i = 0; i < first; i++) html += `<div class="empty"></div>`;
+  for (let d = 1; d <= days; d++) {
+    const dt = new Date(y, m, d), disabled = dt < minDate;
+    const sel = state.date && ymd(state.date) === ymd(dt);
+    const cls = "day" + (ymd(dt) === ymd(today) ? " today" : "");
+    html += `<button type="button" class="${cls}" data-d="${d}" ${disabled ? "disabled" : ""} aria-pressed="${!!sel}" aria-label="${longDate(dt)}${disabled ? " (unavailable)" : ""}">${d}</button>`;
+  }
+  grid.innerHTML = html;
+  const atMin = y === minDate.getFullYear() && m === minDate.getMonth();
+  $("#prevMonth").disabled = atMin;
+}
+function renderDatePick() {
+  $("#datePick").innerHTML = state.date
+    ? `<div><small>Your day</small><strong>${longDate(state.date)}</strong></div>`
+    : `<span class="placeholder">No day chosen yet</span>`;
+}
+$("#calGrid").addEventListener("click", e => {
+  const b = e.target.closest(".day"); if (!b || b.disabled) return;
+  state.date = new Date(state.view.y, state.view.m, +b.dataset.d);
+  showErr("#dateErr", "");
+  renderCalendar(); renderDatePick();
+  const again = $(`.day[data-d="${b.dataset.d}"]`); if (again) again.focus({ preventScroll: true });
+});
+$("#calGrid").addEventListener("keydown", e => {   // arrow-key navigation
+  const b = e.target.closest(".day"); if (!b) return;
+  const step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
+  if (!step) return;
+  e.preventDefault();
+  const t = $(`.day[data-d="${+b.dataset.d + step}"]`);
+  if (t && !t.disabled) t.focus();
+});
+$("#prevMonth").addEventListener("click", () => { if (--state.view.m < 0) { state.view.m = 11; state.view.y--; } renderCalendar(); });
+$("#nextMonth").addEventListener("click", () => { if (++state.view.m > 11) { state.view.m = 0; state.view.y++; } renderCalendar(); });
+$("#dateNext").addEventListener("click", () => {
+  if (!state.date) return showErr("#dateErr", "Please tap a day first. Any day you like. ðŸ’•");
+  showErr("#dateErr", ""); go("time");
+});
+
+/* ===================== Time ===================== */
+const SLOTS = [
+  { k: "morning",   em: "ðŸŒ…", name: "Morning",   sub: "around 10:00 AM", v: "10:00" },
+  { k: "afternoon", em: "â˜€ï¸", name: "Afternoon", sub: "around 2:00 PM",  v: "14:00" },
+  { k: "evening",   em: "ðŸŒ‡", name: "Evening",   sub: "around 6:30 PM",  v: "18:30" },
+  { k: "night",     em: "ðŸŒ™", name: "Night",     sub: "around 8:30 PM",  v: "20:30" }
+];
+function renderSlots() {
+  $("#slots").innerHTML = SLOTS.map(s => `
+    <button type="button" class="chip" data-k="${s.k}" aria-pressed="${!!(state.time && state.time.kind === s.k)}">
+      <span class="em" aria-hidden="true">${s.em}</span><b>${s.name}</b><span class="sub">${s.sub}</span>
+    </button>`).join("");
+}
+function timeLabel(t) {
+  if (!t) return "";
+  const slot = SLOTS.find(s => s.k === t.kind);
+  return slot ? `${slot.name}, around ${fmt12(t.value)}` : fmt12(t.value);
+}
+function renderTimePick() {
+  $("#timePick").innerHTML = state.time
+    ? `<div><small>Your time</small><strong>${timeLabel(state.time)}</strong></div>`
+    : `<span class="placeholder">No time chosen yet</span>`;
+}
+$("#slots").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  const s = SLOTS.find(x => x.k === b.dataset.k);
+  state.time = { value: s.v, kind: s.k };
+  $("#customTime").value = "";
+  showErr("#timeErr", ""); renderSlots(); renderTimePick();
+});
+$("#customTime").addEventListener("input", e => {
+  if (e.target.value) state.time = { value: e.target.value, kind: "custom" };
+  else if (state.time && state.time.kind === "custom") state.time = null;
+  showErr("#timeErr", ""); renderSlots(); renderTimePick();
+});
+$("#timeNext").addEventListener("click", () => {
+  if (!state.time) return showErr("#timeErr", "Choose a time of day or set an exact time. â°");
+  showErr("#timeErr", ""); go("place");
+});
+
+/* ===================== Place ===================== */
+const CATS = [
+  { k: "CafÃ©", em: "â˜•" }, { k: "Restaurant", em: "ðŸ" }, { k: "Park", em: "ðŸŒ³" },
+  { k: "Shopping area", em: "ðŸ›ï¸" }, { k: "Movie", em: "ðŸŽ¬" }, { k: "Somewhere peaceful", em: "ðŸ•Šï¸" }
+];
+function renderCats() {
+  $("#cats").innerHTML = CATS.map(c => `
+    <button type="button" class="chip" data-k="${c.k}" aria-pressed="${state.category === c.k}">
+      <span class="em" aria-hidden="true">${c.em}</span><b>${c.k}</b>
+    </button>`).join("");
+}
+$("#cats").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  state.category = state.category === b.dataset.k ? null : b.dataset.k;   // tap again to unselect
+  showErr("#placeErr", ""); renderCats();
+});
+$("#surpriseBtn").addEventListener("click", () => {
+  state.surprise = !state.surprise;
+  $("#surpriseBtn").setAttribute("aria-pressed", String(state.surprise));
+  $("#surpriseWrap").hidden = !state.surprise;
+  showErr("#placeErr", "");
+  if (state.surprise) $("#surpriseInput").focus({ preventScroll: true });
+});
+$("#placeInput").addEventListener("input", () => showErr("#placeErr", ""));
+function locationData() {
+  return {
+    category: state.category || "",
+    place: $("#placeInput").value.trim(),
+    surprise: state.surprise,
+    surpriseIdea: state.surprise ? $("#surpriseInput").value.trim() : "",
+    preferences: $("#ideasInput").value.trim()
+  };
+}
+function locationLabel(l) {
+  const parts = [];
+  if (l.place) parts.push(l.place);
+  if (l.category) parts.push(l.place ? `(${l.category})` : l.category);
+  if (l.surprise) parts.push(l.surpriseIdea ? `Surprise me: ${l.surpriseIdea}` : "Surprise me!");
+  return parts.join(" ") || "";
+}
+$("#placeNext").addEventListener("click", () => {
+  const l = locationData();
+  if (!l.category && !l.place && !l.surprise)
+    return showErr("#placeErr", "Pick a vibe, type a place, or tap â€œSurprise meâ€. ðŸ—ºï¸");
+  showErr("#placeErr", ""); go("note");
+});
+
+/* ===================== Note ===================== */
+$("#noteInput").addEventListener("input", e => { $("#noteCount").textContent = e.target.value.length; });
+$("#noteNext").addEventListener("click", () => { renderReview(); go("review"); });
+
+/* ===================== Review ===================== */
+function rowHTML(ico, label, value, small, editTo) {
+  const r = document.createElement("div"); r.className = "row";
+  const i = document.createElement("div"); i.className = "ico"; i.setAttribute("aria-hidden", "true"); i.textContent = ico;
+  const mid = document.createElement("div");
+  const dt = document.createElement("dt"); dt.textContent = label;
+  const dd = document.createElement("dd"); dd.textContent = value;
+  mid.append(dt, dd);
+  if (small) { const s = document.createElement("dd"); s.className = "small"; s.textContent = small; mid.append(s); }
+  r.append(i, mid);
+  if (editTo) {
+    const b = document.createElement("button"); b.type = "button"; b.className = "edit"; b.textContent = "Edit";
+    b.setAttribute("aria-label", `Edit ${label.toLowerCase()}`);
+    b.addEventListener("click", () => go(editTo));
+    r.append(b);
+  }
+  return r;
+}
+function fillSummary(el, data, editable) {
+  el.replaceChildren();
+  const l = data.location;
+  el.append(
+    rowHTML("ðŸ“…", "Date", data.dateLabel, "", editable && "date"),
+    rowHTML("â°", "Time", data.timeLabel, "", editable && "time"),
+    rowHTML("ðŸ“", "Place", locationLabel(l), l.preferences ? `Ideas: ${l.preferences}` : "", editable && "place"),
+    rowHTML("ðŸ’Œ", "Note", data.note || "No note this time", "", editable && "note")
+  );
+}
+function collect() {
+  return {
+    to: CONFIG.yourName || "",
+    date: ymd(state.date),
+    dateLabel: longDate(state.date),
+    time: state.time.value,
+    timeLabel: timeLabel(state.time),
+    location: locationData(),
+    note: $("#noteInput").value.trim(),
+    submittedAt: new Date().toISOString(),
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  };
+}
+function renderReview() {
+  fillSummary($("#reviewList"), collect(), true);
+  const n = $("#demoNotice");
+  n.hidden = !isDemo();
+  if (isDemo()) n.textContent = "This invitation isn't connected to its response service yet (CONFIG.endpoint is empty), so submitting will not save anything. See the README.";
+  $("#submitStatus").textContent = ""; $("#submitStatus").style.color = "";
+}
+$("#editBtn").addEventListener("click", () => go("date"));
+
+/* ===================== Submission ===================== */
+/* Flow: POST /submit -> Worker validates and triggers the GitHub workflow
+   -> we poll GET /status until the JSON file really exists in the repo.
+   The celebration screen appears ONLY after the status says "saved". */
+const INVITE_KEY = new URLSearchParams(location.search).get("k") || "";   // optional shared secret in the link
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const uuid = () => (window.crypto && crypto.randomUUID)
+  ? crypto.randomUUID()
+  : [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, "0")).join("");
+Object.assign(state, { requestId: null, submissionId: null, summary: null, polling: false });
+
+function setStatus(msg, isError) {
+  const s = $("#submitStatus"); s.textContent = msg; s.style.color = isError ? "#a3283f" : "";
+}
+function setBtn(label, spinning) {
+  const b = $("#submitBtn"); b.replaceChildren();
+  if (spinning) { const sp = document.createElement("span"); sp.className = "spinner"; sp.setAttribute("aria-hidden", "true"); b.append(sp, " "); }
+  b.append(label);
+}
+function lock(on) {
+  $("#submitBtn").disabled = on;
+  $("#editBtn").disabled = on;
+  $("#editBtn").hidden = !!state.submissionId;   // once accepted, choices can't be edited
+}
+async function api(path, options = {}) {
+  const ctrl = new AbortController(), t = setTimeout(() => ctrl.abort(), CONFIG.timeoutMs);
+  try {
+    const headers = { ...(options.headers || {}) };
+    if (INVITE_KEY) headers["X-Invite-Key"] = INVITE_KEY;
+    return await fetch(CONFIG.endpoint.replace(/\/+$/, "") + path, { ...options, headers, signal: ctrl.signal });
+  } finally { clearTimeout(t); }
+}
+function buildRequest() {
+  const l = locationData();
+  return {
+    requestId: state.requestId,            // reused on retry so the server can de-duplicate
+    preferredDate: ymd(state.date),
+    preferredTime: state.time.value,
+    location: l.place,
+    locationCategory: l.category,
+    surprise: l.surprise,
+    surpriseIdea: l.surpriseIdea,
+    preferences: l.preferences,
+    note: $("#noteInput").value.trim()
+  };
+}
+function errorMessage(status) {
+  if (status === 429) return "Too many tries right now. Please wait a minute and try again.";
+  if (status === 403) return "This link isn't allowed to send answers. Please use the original link.";
+  if (status === 413 || status === 415 || status === 422 || status === 400)
+    return "Something in the answer wasn't accepted. Please go back and check your choices.";
+  return "We couldn't send your answer. Please try again.";
+}
+
+$("#submitBtn").addEventListener("click", async () => {
+  if (state.submitting || state.polling) return;                 // no double clicks
+  if (!state.date || !state.time) return go(!state.date ? "date" : "time");
+  const l = locationData();
+  if (!l.category && !l.place && !l.surprise) return go("place");
+  if (!CONFIG.endpoint) return setStatus("This invitation isn't connected to its response service yet. Nothing was sent.", true);
+  if (state.submissionId) return confirmSaved();                 // already accepted: only re-check, never re-send
+
+  state.submitting = true; lock(true);
+  state.requestId = state.requestId || uuid();
+  state.summary = collect();
+  setBtn("Sendingâ€¦", true); setStatus("Sending your answerâ€¦");
+  try {
+    const res = await api("/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(buildRequest())
+    });
+    const data = await res.json().catch(() => ({}));
+    if ((res.status === 200 || res.status === 202) && data.submissionId) {
+      state.submissionId = data.submissionId;
+      state.submitting = false;
+      return await confirmSaved();
+    }
+    throw Object.assign(new Error("rejected"), { status: res.status });
+  } catch (err) {
+    state.submitting = false; lock(false);
+    setBtn("Try again â¤ï¸");
+    setStatus(err.name === "AbortError"
+      ? "That took too long. Please check your connection and try again."
+      : errorMessage(err.status), true);
+    // requestId is kept on purpose: a retry cannot create a second file.
+  }
+});
+
+async function confirmSaved() {
+  state.polling = true; lock(true);
+  setBtn("Savingâ€¦", true);
+  setStatus("Your answer was received. Confirming it's safely savedâ€¦ this can take up to a minute.");
+  const stopAt = Date.now() + CONFIG.pollForMs;
+  while (Date.now() < stopAt) {
+    await sleep(CONFIG.pollEveryMs);
+    let st = "pending";
+    try {
+      const r = await api("/status?id=" + encodeURIComponent(state.submissionId));
+      if (r.ok) st = (await r.json()).status;
+    } catch (_) { /* transient network error: keep waiting */ }
+    if (st === "saved") { state.polling = false; return showDone(); }
+    if (st === "failed") {
+      // The server accepted it but saving failed; start a fresh request id so a retry really re-sends.
+      state.polling = false; state.submissionId = null; state.requestId = uuid();
+      lock(false); setBtn("Try again â¤ï¸");
+      return setStatus("Your answer reached the server but couldn't be saved. Please try again.", true);
+    }
+  }
+  state.polling = false; lock(false); setBtn("Check again");
+  setStatus("We've received your answer but can't confirm it's saved yet. Nothing is lost. Tap â€œCheck againâ€ in a moment.");
+}
+
+/* ===================== Confirmation ===================== */
+function showDone() {
+  fillSummary($("#doneList"), state.summary, false);
+  go("done");
+  setTimeout(celebrate, reduceMotion ? 0 : 500);
+}
+$("#changeAnswer").addEventListener("click", () => {
+  // A new answer is a new submission; the earlier one stays on record.
+  state.requestId = null; state.submissionId = null; state.summary = null;
+  setBtn("Let's make it a date! â¤ï¸"); setStatus(""); lock(false);
+  go("date");
+});
+
+/* ===================== Floating hearts + sparkles ===================== */
+(function ambient() {
+  if (reduceMotion) return;
+  const box = $("#floaters"), small = window.innerWidth < 600;
+  const hearts = small ? 9 : 16, sparks = small ? 10 : 18, glyphs = ["â™¥", "â™¡", "â¤"];
+  for (let i = 0; i < hearts; i++) {
+    const h = document.createElement("span");
+    h.className = "floater"; h.textContent = glyphs[i % 3];
+    h.style.cssText = `left:${Math.random() * 100}%;font-size:${12 + Math.random() * 20}px;` +
+      `animation-duration:${14 + Math.random() * 16}s;animation-delay:${-Math.random() * 20}s;` +
+      `--sway:${(Math.random() - .5) * 80}px;--rot:${(Math.random() - .5) * 60}deg;` +
+      `color:${["#d9607a", "#e8a0ae", "#c9956f"][i % 3]}`;
+    box.append(h);
+  }
+  for (let i = 0; i < sparks; i++) {
+    const s = document.createElement("span");
+    s.className = "sparkle";
+    s.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-delay:${-Math.random() * 4}s;animation-duration:${2.5 + Math.random() * 3}s`;
+    box.append(s);
+  }
+})();
+
+/* ===================== Canvas heart burst ===================== */
+const cv = $("#fx"), ctx = cv.getContext("2d");
+let parts = [], raf = null;
+function sizeCanvas() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+sizeCanvas(); addEventListener("resize", sizeCanvas);
+function heartPath(x, y, s) {
+  ctx.beginPath();
+  ctx.moveTo(x, y + s * .3);
+  ctx.bezierCurveTo(x, y - s * .2, x - s, y - s * .2, x - s, y + s * .3);
+  ctx.bezierCurveTo(x - s, y + s * .8, x, y + s * 1.0, x, y + s * 1.25);
+  ctx.bezierCurveTo(x, y + s * 1.0, x + s, y + s * .8, x + s, y + s * .3);
+  ctx.bezierCurveTo(x + s, y - s * .2, x, y - s * .2, x, y + s * .3);
+  ctx.closePath();
+}
+function burst(x, y, n, rain) {
+  if (reduceMotion) return;
+  const colors = ["#e5748c", "#d9607a", "#f4a9b8", "#c9956f", "#ffd1c1"];
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 5;
+    parts.push({
+      x: rain ? Math.random() * innerWidth : x, y: rain ? -20 : y,
+      vx: rain ? (Math.random() - .5) * 1.2 : Math.cos(a) * sp,
+      vy: rain ? 1.5 + Math.random() * 2.5 : Math.sin(a) * sp - 2,
+      s: 5 + Math.random() * 9, life: 1, decay: .004 + Math.random() * .006,
+      c: colors[i % colors.length], rot: (Math.random() - .5) * .04
+    });
+  }
+  if (parts.length > 140) parts.splice(0, parts.length - 140);
+  if (!raf) raf = requestAnimationFrame(tick);
+}
+function tick() {
+  ctx.clearRect(0, 0, innerWidth, innerHeight);
+  parts = parts.filter(p => p.life > 0 && p.y < innerHeight + 30);
+  for (const p of parts) {
+    p.x += p.vx; p.y += p.vy; p.vy += .05; p.vx *= .995; p.life -= p.decay;
+    ctx.globalAlpha = Math.max(p.life, 0); ctx.fillStyle = p.c;
+    heartPath(p.x, p.y, p.s); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  raf = parts.length ? requestAnimationFrame(tick) : (ctx.clearRect(0, 0, innerWidth, innerHeight), null);
+}
+function celebrate() {
+  burst(innerWidth / 2, innerHeight * .4, 50);
+  let k = 0; const iv = setInterval(() => { burst(0, 0, 8, true); if (++k > 8) clearInterval(iv); }, 350);
+}
+
+/* ===================== Optional music (off until tapped) ===================== */
+const music = (() => {
+  let ac, master, timer, on = false, i = 0;
+  const notes = [261.63, 329.63, 392.0, 440.0, 392.0, 329.63, 293.66, 349.23, 440.0, 523.25, 440.0, 349.23]; // gentle C-major pattern
+  function play() {
+    const t = ac.currentTime, f = notes[i++ % notes.length];
+    [f, f * 2].forEach((freq, k) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = "sine"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(k ? .025 : .08, t + .06);
+      g.gain.exponentialRampToValueAtTime(.0001, t + 1.8);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + 1.9);
+    });
+  }
+  return {
+    toggle() {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return toast("Audio isn't supported on this browser.");
+      if (!on) {
+        ac = ac || new Ctx();
+        if (!master) { master = ac.createGain(); master.gain.value = .6; master.connect(ac.destination); }
+        ac.resume(); play(); timer = setInterval(play, 750); on = true;
+      } else { clearInterval(timer); on = false; }
+      const b = $("#musicBtn");
+      b.setAttribute("aria-pressed", String(on));
+      b.setAttribute("aria-label", on ? "Mute background music" : "Play soft background music");
+      b.title = on ? "Music (on)" : "Music (off)"; b.textContent = on ? "â™«" : "â™ª";
+    },
+    pause() { if (on) this.toggle(); }
+  };
+})();
+$("#musicBtn").addEventListener("click", () => music.toggle());
+document.addEventListener("visibilitychange", () => { if (document.hidden) music.pause(); });
+
+/* ===================== Init ===================== */
+renderCalendar(); renderDatePick(); renderSlots(); renderTimePick(); renderCats();
+</script>
+</body>
+</html>
